@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useState } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export default function Navbar() {
@@ -13,13 +14,25 @@ export default function Navbar() {
         { href: '/admin', label: 'الإدارة' },
     ];
 
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     return (
         <nav className="fixed top-6 left-0 right-0 z-[100] px-4">
             <div className="max-w-7xl mx-auto">
-                <div className="bg-white doodle-border-sm doodle-shadow-sm px-6 py-4 flex justify-between items-center -rotate-[0.5deg]">
+                <div className="bg-white doodle-border-sm doodle-shadow-sm px-6 py-4 flex justify-between items-center -rotate-[0.5deg] relative">
 
-                    {/* Actions */}
-                    <div className="flex items-center gap-4">
+                    {/* Mobile Menu Button */}
+                    <div className="md:hidden flex items-center">
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="text-2xl p-2 doodle-border-sm hover:bg-gray-100"
+                        >
+                            {isMenuOpen ? '✕' : '☰'}
+                        </button>
+                    </div>
+
+                    {/* Actions (Desktop) */}
+                    <div className="hidden md:flex items-center gap-4">
                         <SignedOut>
                             <SignInButton mode="modal">
                                 <button className="bg-black text-white doodle-border-sm px-4 py-2 font-black text-xs uppercase hover:scale-105 transition-transform rotate-[-1deg] mx-2">
@@ -47,7 +60,7 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Links */}
+                    {/* Links (Desktop) */}
                     <div className="hidden md:flex items-center gap-6">
                         {navLinks.map((link) => {
                             const isActive = pathname === link.href;
@@ -68,7 +81,51 @@ export default function Navbar() {
                             );
                         })}
                     </div>
+
+                    {/* Mobile Actions (Right side on mobile) */}
+                    <div className="md:hidden flex items-center gap-2">
+                        <SignedIn>
+                            <div className="mx-2 scale-125 doodle-border-sm rounded-full overflow-hidden">
+                                <UserButton afterSignOutUrl="/" />
+                            </div>
+                        </SignedIn>
+                        {!isMenuOpen && (
+                            <Link
+                                href="/submit"
+                                className="bg-[#FF7A00] doodle-border-sm px-3 py-1 font-black text-[10px] uppercase rotate-[1deg]"
+                            >
+                                +
+                            </Link>
+                        )}
+                    </div>
                 </div>
+
+                {/* Mobile Menu Dropdown */}
+                {isMenuOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-4 px-4 md:hidden">
+                        <div className="bg-white doodle-border-sm doodle-shadow-sm p-4 flex flex-col gap-4 rotate-[1deg]">
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="font-black text-lg text-center py-2 border-b-2 border-dashed border-gray-200 last:border-0 hover:bg-yellow-50"
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                            <div className="flex justify-center pt-2">
+                                <SignedOut>
+                                    <SignInButton mode="modal">
+                                        <button className="w-full bg-black text-white doodle-border-sm px-4 py-3 font-black text-sm uppercase">
+                                            تسجيل الدخول 🔑
+                                        </button>
+                                    </SignInButton>
+                                </SignedOut>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </nav>
     );
