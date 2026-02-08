@@ -75,11 +75,10 @@ export default function SubmissionForm() {
         e.preventDefault();
         setStatus('submitting');
 
-        // Get names for the submission record (since schema stores names for some reason? Oh, `submissions` table layout).
-        // I need to find the names from my state lists.
-        const faculty = faculties.find(f => f.id === Number(form.facultyId));
-        const subject = subjects.find(s => s.id === Number(form.subjectId));
-        const section = sections.find(s => s.id === Number(form.sectionId));
+        // Get names for the submission record
+        const faculty = faculties.find(f => f.id === form.facultyId);
+        const subject = subjects.find(s => s.id === form.subjectId);
+        const section = sections.find(s => s.id === form.sectionId);
 
         if (!faculty || !subject || !section) {
             alert('الرجاء تعبئة جميع الحقول المطلوبة');

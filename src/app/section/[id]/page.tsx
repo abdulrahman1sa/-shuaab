@@ -6,34 +6,41 @@ import GroupList from '@/components/GroupList';
 import { notFound } from 'next/navigation';
 import { HiHome, HiChevronLeft } from 'react-icons/hi';
 import Link from 'next/link';
+import { Group } from '@prisma/client';
 
-export default async function SectionDetails({ params }: { params: { id: string } }) {
-    const sectionId = parseInt(params.id);
-    if (isNaN(sectionId)) return notFound();
+export default async function SectionDetails({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    // The ID in the URL is now treated as the sectionNumber string
+    const sectionNumber = decodeURIComponent(id);
 
-    const section = await prisma.section.findUnique({
-        where: { id: sectionId },
-        include: {
-            subject: {
-                include: {
-                    faculty: true,
-                }
-            },
-            groups: {
-                where: { status: { not: 'hidden' } },
-                orderBy: { upvotes: 'desc' }
-            }
-        }
+    // Fetch all active groups for this section
+    const groups = await prisma.group.findMany({
+        where: {
+            sectionNumber: sectionNumber,
+            isActive: true
+        },
+        orderBy: { votes: 'desc' }
     });
 
-    if (!section) return notFound();
+    if (groups.length === 0) {
+        return notFound();
+    }
 
-    // Convert Group objects to plain objects (Date objects issue in passing to Client Components sometimes, though App Router handles it usually. But explicit map is safe if needed. Prisma returns JSON-serializable usually if Dates are strings, but they are Date objects. Next 13+ can serialize Dates to string automatically in Server Components props? Actually yes, it warns but does it. Safer to .toISOString.)
-    // Wait, Client Components props must be serializable. Date objects are serializable by Next.js now? No, they need to be strings usually or it warns.
-    // I'll map the groups.
-    const serializedGroups = section.groups.map(g => ({
+    // Extract metadata from the first group found
+    // (In this flat schema, we assume all groups with same sectionNumber belong to same subject/college, 
+    // or at least we pick the first one to display context)
+    const firstGroup = groups[0];
+    const subjectName = firstGroup.subject;
+    const collegeName = firstGroup.college;
+
+    // Convert keys to be serializable if needed, specifically Dates
+    const serializedGroups = groups.map(g => ({
         ...g,
+        upvotes: g.votes, // Map schema 'votes' to UI 'upvotes'
+        downvotes: 0,
+        status: g.isActive ? 'approved' : 'hidden',
         createdAt: g.createdAt.toISOString(),
+        updatedAt: g.updatedAt.toISOString(),
     }));
 
     return (
@@ -46,14 +53,14 @@ export default async function SectionDetails({ params }: { params: { id: string 
                         <HiHome className="h-5 w-5" />
                     </Link>
                     <HiChevronLeft className="h-4 w-4 mx-2 rtl:rotate-180" />
-                    <span className="font-medium text-gray-700">{section.subject.faculty.name}</span>
+                    <span className="font-medium text-gray-700">{collegeName}</span>
                     <HiChevronLeft className="h-4 w-4 mx-2 rtl:rotate-180" />
-                    <span className="font-medium text-gray-700">{section.subject.name}</span>
+                    <span className="font-medium text-gray-700">{subjectName}</span>
                 </nav>
 
                 <div className="mb-10">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        مادة: {section.subject.name} <span className="text-primary-600">— شعبة: {section.sectionNumber}</span>
+                        مادة: {subjectName} <span className="text-primary-600">— شعبة: {sectionNumber}</span>
                     </h1>
                     <p className="text-gray-500">
                         هنا تلقى روابط قروبات التليجرام الخاصة بهالشعبة.
@@ -61,8 +68,8 @@ export default async function SectionDetails({ params }: { params: { id: string 
                 </div>
 
                 <GroupList
-                    initialGroups={serializedGroups as any} // Type assertion easier than redefining whole type with Date string
-                    sectionId={section.id}
+                    initialGroups={serializedGroups as any}
+                    sectionId={sectionNumber} // passing sectionNumber as ID
                 />
 
             </main>

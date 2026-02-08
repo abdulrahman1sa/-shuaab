@@ -8,14 +8,14 @@ import Link from 'next/link';
 
 interface GroupListProps {
     initialGroups: Group[];
-    sectionId: number;
+    sectionId: string;
 }
 
 export default function GroupList({ initialGroups, sectionId }: GroupListProps) {
     const [groups, setGroups] = useState<Group[]>(initialGroups);
-    const [votedGroups, setVotedGroups] = useState<number[]>([]); // simplified local state for session
+    const [votedGroups, setVotedGroups] = useState<string[]>([]); // simplified local state for session
 
-    const handleVote = async (groupId: number, type: 'up' | 'down') => {
+    const handleVote = async (groupId: string, type: 'up' | 'down') => {
         if (votedGroups.includes(groupId)) return;
 
         // Optimistic update
@@ -24,7 +24,7 @@ export default function GroupList({ initialGroups, sectionId }: GroupListProps) 
                 return {
                     ...g,
                     upvotes: type === 'up' ? g.upvotes + 1 : g.upvotes,
-                    downvotes: type === 'down' ? g.downvotes + 1 : g.downvotes,
+                    downvotes: type === 'down' ? (g.downvotes || 0) + 1 : (g.downvotes || 0),
                 };
             }
             return g;
@@ -84,7 +84,7 @@ export default function GroupList({ initialGroups, sectionId }: GroupListProps) 
                     </div>
 
                     <a
-                        href={group.telegramLink}
+                        href={group.groupLink} // Fixed: groupLink instead of telegramLink
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block w-full text-center bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl mb-4 transition-colors"

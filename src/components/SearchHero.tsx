@@ -12,9 +12,9 @@ export default function SearchHero() {
     const [subjects, setSubjects] = useState<Subject[]>([]);
     const [sections, setSections] = useState<Section[]>([]); // sections for the subject
 
-    const [selectedFaculty, setSelectedFaculty] = useState<number | ''>('');
-    const [selectedSubject, setSelectedSubject] = useState<number | ''>('');
-    const [selectedSection, setSelectedSection] = useState<number | ''>('');
+    const [selectedFaculty, setSelectedFaculty] = useState<string>('');
+    const [selectedSubject, setSelectedSubject] = useState<string>('');
+    const [selectedSection, setSelectedSection] = useState<string>('');
 
     const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ export default function SearchHero() {
     useEffect(() => {
         if (selectedFaculty) {
             const fetchSubjects = async () => {
-                const res = await fetch(`/api/subjects?facultyId=${selectedFaculty}`);
+                const res = await fetch(`/api/subjects?facultyId=${encodeURIComponent(selectedFaculty)}`);
                 if (res.ok) setSubjects(await res.json());
             };
             fetchSubjects();
@@ -47,7 +47,7 @@ export default function SearchHero() {
     useEffect(() => {
         if (selectedSubject) {
             const fetchSections = async () => {
-                const res = await fetch(`/api/sections?subjectId=${selectedSubject}`);
+                const res = await fetch(`/api/sections?subjectId=${encodeURIComponent(selectedSubject)}`);
                 if (res.ok) setSections(await res.json());
             };
             fetchSections();
@@ -64,7 +64,7 @@ export default function SearchHero() {
             // Actually the user wants to go to: Select Faculty > Subject > Section -> Show Link
             // But we might have multiple groups for a section.
             // So we go to /section/[id]
-            router.push(`/section/${selectedSection}`);
+            router.push(`/section/${encodeURIComponent(selectedSection)}`);
         }
     };
 
@@ -88,7 +88,7 @@ export default function SearchHero() {
                             <select
                                 className="block w-full rounded-lg border-gray-200 py-3 pr-4 pl-8 text-gray-900 focus:border-primary-500 focus:ring-primary-500 sm:text-sm appearance-none bg-gray-50"
                                 value={selectedFaculty}
-                                onChange={(e) => setSelectedFaculty(Number(e.target.value))}
+                                onChange={(e) => setSelectedFaculty(e.target.value)}
                             >
                                 <option value="">اختر الكلية</option>
                                 {faculties.map((f) => (
@@ -105,7 +105,7 @@ export default function SearchHero() {
                             <select
                                 className="block w-full rounded-lg border-gray-200 py-3 pr-4 pl-8 text-gray-900 focus:border-primary-500 focus:ring-primary-500 sm:text-sm appearance-none bg-gray-50 disabled:opacity-50"
                                 value={selectedSubject}
-                                onChange={(e) => setSelectedSubject(Number(e.target.value))}
+                                onChange={(e) => setSelectedSubject(e.target.value)}
                                 disabled={!selectedFaculty}
                             >
                                 <option value="">اختر المادة</option>
@@ -123,7 +123,7 @@ export default function SearchHero() {
                             <select
                                 className="block w-full rounded-lg border-gray-200 py-3 pr-4 pl-8 text-gray-900 focus:border-primary-500 focus:ring-primary-500 sm:text-sm appearance-none bg-gray-50 disabled:opacity-50"
                                 value={selectedSection}
-                                onChange={(e) => setSelectedSection(Number(e.target.value))}
+                                onChange={(e) => setSelectedSection(e.target.value)}
                                 disabled={!selectedSubject}
                             >
                                 <option value="">اختر رقم الشعبة</option>

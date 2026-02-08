@@ -22,7 +22,10 @@ interface Group {
     votes: number;
 }
 
-export default function SectionPage() {
+import { Suspense } from 'react';
+
+// Extract the logic to a client component
+function SectionContent() {
     const searchParams = useSearchParams();
     const [groups, setGroups] = useState<Group[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -170,5 +173,13 @@ export default function SectionPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function SectionPage() {
+    return (
+        <Suspense fallback={<div className="text-center py-32 font-black text-3xl animate-bounce">جاري التحميل... ✏️</div>}>
+            <SectionContent />
+        </Suspense>
     );
 }

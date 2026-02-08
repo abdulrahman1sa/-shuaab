@@ -1,27 +1,42 @@
+export interface Group {
+    id: string;
+    platform: string;
+    groupType: string;
+    college: string;
+    subject: string;
+    sectionNumber: string;
+    groupLink: string;
+    groupName: string | null;
+    description: string | null;
+    isActive: boolean;
+    memberCount: number;
+    votes: number;
+    status?: string;
+
+    // For compatibility with UI components:
+    upvotes: number;
+    downvotes?: number;
+
+    // Legacy alias
+    telegramLink?: string;
+
+    createdAt: string;
+    updatedAt: string;
+}
+
 export interface Faculty {
-    id: number;
+    id: string;
     name: string;
 }
 
 export interface Subject {
-    id: number;
+    id: string; // Name as ID
     name: string;
-    facultyId: number;
+    facultyId: string; // College name as ID
 }
 
 export interface Section {
-    id: number;
+    id: string; // Section Number as ID
     sectionNumber: string;
-    subjectId: number;
-}
-
-export interface Group {
-    id: number;
-    sectionId: number;
-    telegramLink: string;
-    groupName: string | null;
-    status: 'approved' | 'pending' | 'hidden' | 'rejected';
-    upvotes: number;
-    downvotes: number;
-    createdAt: string;
+    subjectId: string; // Subject name as ID
 }
