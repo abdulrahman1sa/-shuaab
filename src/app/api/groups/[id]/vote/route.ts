@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+type RouteContext = {
+    params: Promise<{ id: string }>;
+};
+
 export async function POST(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: RouteContext
 ) {
-    const groupId = parseInt(params.id);
+    const { id } = await params;
+    const groupId = parseInt(id);
     const { type } = await request.json(); // 'up' or 'down'
 
     if (!['up', 'down'].includes(type)) {
