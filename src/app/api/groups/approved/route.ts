@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
         if (platform) where.platform = platform;
 
-        const groups = await (prisma as any).group.findMany({
+        const groups = await prisma.group.findMany({
             where,
             orderBy: {
                 createdAt: 'desc'

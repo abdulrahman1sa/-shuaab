@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
         // Try to save via Prisma
         try {
-            const submission = await (prisma as any).groupSubmission.create({
+            const submission = await prisma.groupSubmission.create({
                 data: {
                     platform,
                     groupType: groupType || 'section',

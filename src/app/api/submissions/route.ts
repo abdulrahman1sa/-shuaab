@@ -11,14 +11,15 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'رابط التليجرام غير صحيح' }, { status: 400 });
         }
 
-        const submission = await prisma.submission.create({
+        const submission = await prisma.groupSubmission.create({
             data: {
-                facultyName,
-                subjectName,
+                college: facultyName,
+                subject: subjectName,
                 sectionNumber,
-                telegramLink,
+                groupLink: telegramLink,
                 groupName,
-                notes,
+                description: notes,
+                platform: 'telegram', // Assumed from telegramLink
                 status: 'pending'
             }
         });

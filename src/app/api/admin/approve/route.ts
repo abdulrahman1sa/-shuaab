@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
         console.log('Found submission:', submission.groupName);
 
         // Check if already approved to prevent duplicates
+        // Check if already approved to prevent duplicates
         if (submission.status === 'approved') {
             return NextResponse.json({ error: 'تمت الموافقة على هذا الطلب مسبقاً' }, { status: 400 });
         }
@@ -32,9 +33,9 @@ export async function POST(request: NextRequest) {
         // Use a transaction to ensure both operations succeed or fail together
         console.log('Starting transaction...');
         try {
-            await (prisma as any).$transaction([
+            await prisma.$transaction([
                 // 1. Create the active group
-                (prisma as any).group.create({
+                prisma.group.create({
                     data: {
                         platform: submission.platform,
                         groupType: submission.groupType,
@@ -43,11 +44,12 @@ export async function POST(request: NextRequest) {
                         sectionNumber: submission.sectionNumber,
                         groupLink: submission.groupLink,
                         groupName: submission.groupName,
-                        description: submission.description || '',
+                        description: submission.description,
+                        isActive: true
                     }
                 }),
                 // 2. Update submission status
-                (prisma as any).groupSubmission.update({
+                prisma.groupSubmission.update({
                     where: { id },
                     data: {
                         status: 'approved',
