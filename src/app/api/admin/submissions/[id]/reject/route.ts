@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+type RouteContext = {
+    params: Promise<{ id: string }>;
+};
+
 export async function POST(
-    request: Request,
-    { params }: { params: Promise<{ id: string }> }
+    request: NextRequest,
+    { params }: RouteContext
 ) {
     const { id } = await params;
     const auth = request.headers.get('x-admin-secret');
