@@ -10,7 +10,6 @@ export async function POST(
     { params }: RouteContext
 ) {
     const { id } = await params;
-    const groupId = parseInt(id);
     const { type } = await request.json(); // 'up' or 'down'
 
     if (!['up', 'down'].includes(type)) {
@@ -27,7 +26,7 @@ export async function POST(
         // I won't implement that complex logic inside the vote query for now, but good to keep in mind.
 
         const group = await prisma.group.update({
-            where: { id: groupId },
+            where: { id },
             data: updateData,
         });
 

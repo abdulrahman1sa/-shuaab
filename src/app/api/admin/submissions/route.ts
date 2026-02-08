@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const submissions = await prisma.submission.findMany({
+        const submissions = await prisma.groupSubmission.findMany({
             orderBy: { createdAt: 'desc' },
             where: { status: 'pending' }
         });

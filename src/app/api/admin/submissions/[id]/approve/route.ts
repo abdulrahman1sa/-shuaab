@@ -15,12 +15,10 @@ export async function POST(
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const submissionId = parseInt(id);
-
     try {
         // 1. Get submission
-        const submission = await prisma.submission.findUnique({
-            where: { id: submissionId }
+        const submission = await prisma.groupSubmission.findUnique({
+            where: { id }
         });
 
         if (!submission) return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -52,8 +50,8 @@ export async function POST(
         });
 
         // 4. Update Submission status
-        await prisma.submission.update({
-            where: { id: submissionId },
+        await prisma.groupSubmission.update({
+            where: { id },
             data: { status: 'approved' }
         });
 

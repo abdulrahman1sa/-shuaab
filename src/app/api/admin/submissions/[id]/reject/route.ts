@@ -15,11 +15,9 @@ export async function POST(
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const submissionId = parseInt(id);
-
     try {
-        await prisma.submission.update({
-            where: { id: submissionId },
+        await prisma.groupSubmission.update({
+            where: { id },
             data: { status: 'rejected' }
         });
 
