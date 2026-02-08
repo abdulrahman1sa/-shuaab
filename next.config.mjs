@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable Turbopack, use Webpack instead
-  turbopack: false,
+  // Webpack is used by default in Next.js 15
 };
 
 export default nextConfig;
