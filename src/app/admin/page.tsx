@@ -112,11 +112,12 @@ export default function AdminDashboard() {
     // Login Screen
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-                <DoodleCard className="max-w-md w-full p-10 rotate-[1deg]">
+            <div className="min-h-screen flex items-center justify-center p-4 relative z-10">
+                <DoodleCard className="max-w-md w-full p-10 rotate-[1deg] bg-white">
                     <div className="text-center mb-10">
                         <DoodleBadge className="mb-4 text-sm rotate-[5deg]">دخول المسؤولين فقط 🔒</DoodleBadge>
                         <h1 className="text-4xl font-black">نظام الإدارة</h1>
+                        <p className="mt-4 text-sm opacity-50">أدخل الرمز السري للمتابعة</p>
                     </div>
 
                     <form onSubmit={handleLogin} className="space-y-8">
