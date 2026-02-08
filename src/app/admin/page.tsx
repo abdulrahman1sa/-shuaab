@@ -23,7 +23,10 @@ interface Submission {
     createdAt: string;
 }
 
+import { useUser } from '@clerk/nextjs';
+
 export default function AdminDashboard() {
+    const { user, isLoaded } = useUser();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [password, setPassword] = useState('');
     const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -33,12 +36,30 @@ export default function AdminDashboard() {
     const ADMIN_PASSWORD = 'JUSTMEANDSOMEPEPOLR><';
 
     useEffect(() => {
+        // Method 1: Session Storage (Legacy Password)
         const auth = sessionStorage.getItem('adminAuth');
         if (auth === 'true') {
             setIsAuthenticated(true);
+            return;
+        }
+
+        // Method 2: Clerk Authentication (Email Check)
+        if (isLoaded && user) {
+            const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
+            const userEmail = user.primaryEmailAddress?.emailAddress;
+
+            if (userEmail && adminEmails.includes(userEmail)) {
+                setIsAuthenticated(true);
+            }
+        }
+    }, [user, isLoaded]);
+
+    // Fetch data when authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
             fetchSubmissions();
         }
-    }, []);
+    }, [isAuthenticated]);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
