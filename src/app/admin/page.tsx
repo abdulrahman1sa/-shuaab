@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import {
     DoodleCard,
     DoodleButton,
@@ -22,8 +23,6 @@ interface Submission {
     status: string;
     createdAt: string;
 }
-
-import { useUser } from '@clerk/nextjs';
 
 export default function AdminDashboard() {
     const { user, isLoaded } = useUser();
