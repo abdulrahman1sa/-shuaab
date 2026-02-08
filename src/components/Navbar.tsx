@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -19,6 +20,18 @@ export default function Navbar() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-4">
+                        <SignedOut>
+                            <SignInButton mode="modal">
+                                <button className="bg-black text-white doodle-border-sm px-4 py-2 font-black text-xs uppercase hover:scale-105 transition-transform rotate-[-1deg] mx-2">
+                                    تسجيل الدخول 🔑
+                                </button>
+                            </SignInButton>
+                        </SignedOut>
+                        <SignedIn>
+                            <div className="mx-2 scale-125 doodle-border-sm rounded-full overflow-hidden">
+                                <UserButton afterSignOutUrl="/" />
+                            </div>
+                        </SignedIn>
                         <Link
                             href="/submit"
                             className="bg-[#FF7A00] doodle-border-sm px-4 py-2 font-black text-xs uppercase doodle-clickable rotate-[1deg]"
