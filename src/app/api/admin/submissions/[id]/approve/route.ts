@@ -23,29 +23,21 @@ export async function POST(
 
         if (!submission) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-        // 2. Find Section ID logic
-        // We have facultyName, subjectName, sectionNumber.
-        // We must find the corresponding IDs or fail.
-        // This assumes names are exact or we need loose matching.
-        // For MVP, since we used dropdowns, names should match exactly.
-
-        const faculty = await prisma.faculty.findFirst({ where: { name: submission.facultyName } });
-        if (!faculty) return NextResponse.json({ error: 'Faculty not found' }, { status: 400 });
-
-        const subject = await prisma.subject.findFirst({ where: { name: submission.subjectName, facultyId: faculty.id } });
-        if (!subject) return NextResponse.json({ error: 'Subject not found' }, { status: 400 });
-
-        const section = await prisma.section.findFirst({ where: { sectionNumber: submission.sectionNumber, subjectId: subject.id } });
-        if (!section) return NextResponse.json({ error: 'Section not found' }, { status: 400 });
-
-        // 3. Create Group
+        // 2. Create Group directly using data from submission
+        // The schema uses simple strings for college, subject, sectionNumber
         await prisma.group.create({
             data: {
-                sectionId: section.id,
-                telegramLink: submission.telegramLink,
-                groupName: submission.groupName || 'قروب بدون اسم',
-                status: 'approved',
-                upvotes: 0
+                platform: submission.platform,
+                groupType: submission.groupType,
+                college: submission.college,
+                subject: submission.subject,
+                sectionNumber: submission.sectionNumber,
+                groupLink: submission.groupLink,
+                groupName: submission.groupName || 'مجموعة جديدة',
+                description: submission.description,
+                isActive: true,
+                votes: 0,
+                memberCount: 0
             }
         });
 
