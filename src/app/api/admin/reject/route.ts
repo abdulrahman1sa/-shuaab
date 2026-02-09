@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(request: NextRequest) {
     try {
@@ -13,14 +14,11 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Update status to rejected in Prisma
-        await (prisma as any).groupSubmission.update({
-            where: { id },
-            data: {
-                status: 'rejected',
-                reviewNote: reason || 'غير محدد',
-                updatedAt: new Date()
-            }
+        // Update submission status to rejected
+        await db.collection(collections.groupSubmissions).doc(id).update({
+            status: 'rejected',
+            reviewNote: reason || 'غير محدد',
+            updatedAt: Timestamp.now(),
         });
 
         return NextResponse.json(
@@ -31,10 +29,10 @@ export async function POST(request: NextRequest) {
             { status: 200 }
         );
     } catch (error: any) {
-        console.error('Error rejecting submission:', error);
+        console.error('REJECT ERROR:', error);
         return NextResponse.json(
             {
-                error: 'حدث خطأ في قاعدة البيانات أثناء الرفض',
+                error: 'حدث خطأ أثناء الرفض',
                 details: error.message
             },
             { status: 500 }

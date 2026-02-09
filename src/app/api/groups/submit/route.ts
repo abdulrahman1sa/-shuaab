@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(request: NextRequest) {
     try {
@@ -24,59 +25,62 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Try to save via Prisma
-        try {
-            const submission = await prisma.groupSubmission.create({
-                data: {
-                    platform,
-                    groupType: groupType || 'section',
-                    college,
-                    subject,
-                    sectionNumber: sectionNumber || 'عام',
-                    groupLink,
-                    groupName,
-                    description: description || '',
-                    submitterName: submitterName || 'مجهول',
-                    status: 'pending',
-                }
-            });
+        // Create submission in Firestore
+        const submissionRef = db.collection(collections.groupSubmissions).doc();
+        const submissionData = {
+            id: submissionRef.id,
+            platform,
+            groupType: groupType || 'section',
+            college,
+            subject,
+            sectionNumber: sectionNumber || 'عام',
+            groupLink,
+            groupName,
+            description: description || '',
+            submitterName: submitterName || 'مجهول',
+            status: 'pending',
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+        };
 
-            return NextResponse.json(
-                {
-                    success: true,
-                    message: 'تم الحفظ بنجاح في قاعدة البيانات المحلية',
-                    submissionId: submission.id,
-                },
-                { status: 201 }
-            );
-        } catch (dbError: any) {
-            console.error('DATABASE INSERT ERROR:', dbError);
-            return NextResponse.json(
-                {
-                    error: 'فشل الحفظ في قاعدة البيانات',
-                    message: dbError.message,
-                    code: dbError.code
-                },
-                { status: 500 }
-            );
-        }
-    } catch (parseError: any) {
-        console.error('JSON PARSE ERROR:', parseError);
+        await submissionRef.set(submissionData);
+
         return NextResponse.json(
-            { error: 'فشل في قراءة بيانات الطلب (JSON Error)' },
-            { status: 400 }
+            {
+                success: true,
+                message: 'تم إرسال طلبك بنجاح! سيتم مراجعته قريباً',
+                submissionId: submissionRef.id,
+            },
+            { status: 201 }
+        );
+    } catch (error: any) {
+        console.error('SUBMISSION ERROR:', error);
+        return NextResponse.json(
+            { error: 'فشل في إرسال الطلب', message: error.message },
+            { status: 500 }
         );
     }
 }
 
 export async function GET() {
     try {
-        const submissions = await (prisma as any).groupSubmission.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
+        const snapshot = await db
+            .collection(collections.groupSubmissions)
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        const submissions = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate().toISOString(),
+            updatedAt: doc.data().updatedAt?.toDate().toISOString(),
+        }));
+
         return NextResponse.json({ submissions }, { status: 200 });
     } catch (error: any) {
         console.error('GET ERROR:', error);
-        return NextResponse.json({ error: 'فشل في قراءة البيانات', details: error.message }, { status: 500 });
+        return NextResponse.json(
+            { error: 'فشل في قراءة البيانات', details: error.message },
+            { status: 500 }
+        );
     }
 }
