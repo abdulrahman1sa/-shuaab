@@ -78,7 +78,6 @@ export default function Home() {
           <div className="flex flex-wrap items-center justify-center gap-3 text-6xl md:text-8xl font-black tracking-tighter mb-4 -rotate-[1deg]">
             <span>دليـل</span>
             <span className="bg-[#FFD400] px-6 py-2 doodle-border-sm rotate-[2deg] inline-flex items-center gap-3">
-              <img src="/duck-logo.svg" className="w-16 h-16 md:w-24 md:h-24 object-contain -mt-2" alt="Duck Logo" />
               <span>الشُعب</span>
             </span>
           </div>
