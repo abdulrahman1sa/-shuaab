@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
 
 export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
@@ -10,15 +10,24 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const groups = await prisma.group.findMany({
-            where: {
-                sectionNumber: sectionNumber,
-                isActive: true
-            },
-            orderBy: { votes: 'desc' },
-        });
+        const snapshot = await db
+            .collection(collections.groups)
+            .where('sectionNumber', '==', sectionNumber)
+            .where('isActive', '==', true)
+            .get();
+
+        const groups = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate().toISOString() : null,
+            updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate().toISOString() : null,
+        }));
+
+        // Sort by votes
+        groups.sort((a: any, b: any) => (b.votes || 0) - (a.votes || 0));
+
         return NextResponse.json(groups);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch groups' }, { status: 500 });
+    } catch (error: any) {
+        console.error('FETCH GROUPS ERROR:', error);
+        return NextResponse.json({ error: 'Failed to fetch groups', details: error.message }, { status: 500 });
     }
 }

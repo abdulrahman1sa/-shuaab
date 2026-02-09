@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(request: NextRequest) {
     try {
@@ -11,22 +12,26 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'رابط التليجرام غير صحيح' }, { status: 400 });
         }
 
-        const submission = await prisma.groupSubmission.create({
-            data: {
-                college: facultyName,
-                subject: subjectName,
-                sectionNumber,
-                groupLink: telegramLink,
-                groupName,
-                description: notes,
-                platform: 'telegram', // Assumed from telegramLink
-                status: 'pending'
-            }
-        });
+        const submissionRef = db.collection(collections.groupSubmissions).doc();
+        const submissionData = {
+            id: submissionRef.id,
+            college: facultyName,
+            subject: subjectName,
+            sectionNumber,
+            groupLink: telegramLink,
+            groupName,
+            description: notes || '',
+            platform: 'telegram',
+            status: 'pending',
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+        };
 
-        return NextResponse.json(submission, { status: 201 });
-    } catch (error) {
+        await submissionRef.set(submissionData);
+
+        return NextResponse.json(submissionData, { status: 201 });
+    } catch (error: any) {
         console.error('Submission error:', error);
-        return NextResponse.json({ error: 'Failed to submit group' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to submit group', details: error.message }, { status: 500 });
     }
 }

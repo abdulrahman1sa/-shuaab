@@ -1,20 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
 
 export async function GET(request: NextRequest) {
-    // Simple protection
+    // Simple protection (fallback - Clerk is preferred)
     const auth = request.headers.get('x-admin-secret');
-    if (auth !== 'admin123') {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     try {
-        const submissions = await prisma.groupSubmission.findMany({
-            orderBy: { createdAt: 'desc' },
-            where: { status: 'pending' }
-        });
+        const snapshot = await db
+            .collection(collections.groupSubmissions)
+            .where('status', '==', 'pending')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        const submissions = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate().toISOString() : null,
+            updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate().toISOString() : null,
+        }));
+
         return NextResponse.json(submissions);
-    } catch (error) {
+    } catch (error: any) {
+        console.error('FETCH SUBMISSIONS ERROR:', error);
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }

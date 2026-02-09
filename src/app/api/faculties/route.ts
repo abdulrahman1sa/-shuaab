@@ -1,22 +1,23 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
 
 export async function GET() {
     try {
-        // Get unique colleges from existing Groups
-        const groups = await prisma.group.findMany({
-            select: { college: true },
-            distinct: ['college'],
-            orderBy: { college: 'asc' }
-        });
+        const snapshot = await db.collection(collections.groups).get();
+        const groups = snapshot.docs.map(doc => doc.data());
 
-        const faculties = groups.map((g: { college: string }, index: number) => ({
-            id: g.college, // use name as ID for simplicity in frontend
-            name: g.college
+        // Get unique colleges
+        const uniqueColleges = Array.from(new Set(groups.map(g => g.college)))
+            .sort((a, b) => a.localeCompare(b, 'ar'));
+
+        const faculties = uniqueColleges.map(collegeName => ({
+            id: collegeName,
+            name: collegeName
         }));
 
         return NextResponse.json(faculties);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch faculties' }, { status: 500 });
+    } catch (error: any) {
+        console.error('FETCH FACULTIES ERROR:', error);
+        return NextResponse.json({ error: 'Failed to fetch faculties', details: error.message }, { status: 500 });
     }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 type RouteContext = {
     params: Promise<{ id: string }>;
@@ -17,21 +18,25 @@ export async function POST(
     }
 
     try {
-        const updateData = type === 'up'
-            ? { upvotes: { increment: 1 } }
-            : { downvotes: { increment: 1 } };
+        const groupRef = db.collection(collections.groups).doc(id);
+        const groupDoc = await groupRef.get();
 
-        // Check if downvotes exceed limit to auto-hide/review (simple logic)
-        // If downvotes > 10, maybe change status to 'pending' or 'hidden'
-        // I won't implement that complex logic inside the vote query for now, but good to keep in mind.
+        if (!groupDoc.exists) {
+            return NextResponse.json({ error: 'Group not found' }, { status: 404 });
+        }
 
-        const group = await prisma.group.update({
-            where: { id },
-            data: updateData,
+        // Increment votes for 'up', decrement for 'down' (or use upvotes/downvotes fields)
+        // Schema used 'votes' field for Prisma, so I'll stick to that.
+        const incrementValue = type === 'up' ? 1 : -1;
+
+        await groupRef.update({
+            votes: FieldValue.increment(incrementValue),
         });
 
-        return NextResponse.json(group);
-    } catch (error) {
-        return NextResponse.json({ error: 'Vote failed' }, { status: 500 });
+        const updatedDoc = await groupRef.get();
+        return NextResponse.json({ id, ...updatedDoc.data() });
+    } catch (error: any) {
+        console.error('VOTE ERROR:', error);
+        return NextResponse.json({ error: 'Vote failed', details: error.message }, { status: 500 });
     }
 }
