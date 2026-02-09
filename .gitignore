@@ -10,3 +10,6 @@ prisma/dev.db
 prisma/dev.db-journal
 
 .env.production
+
+# Firebase credentials (sensitive!)
+firebase-service-account.json

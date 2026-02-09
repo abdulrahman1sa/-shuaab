@@ -74,13 +74,17 @@ export default function Home() {
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto text-center mb-20">
         <div className="relative inline-block mb-8">
-          <DoodleBadge className="absolute -top-6 -right-10 text-lg py-2 px-6 rotate-[15deg]">جديد وحصري! ✨</DoodleBadge>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 -rotate-[1deg]">
-            دليـل <span className="bg-[#FFD400] px-4 doodle-border-sm rotate-[2deg] inline-block">الشُعب</span>
-          </h1>
+          <DoodleBadge className="absolute -top-6 -right-10 text-lg py-2 px-6 rotate-[15deg] z-10">جديد وحصري! ✨</DoodleBadge>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-6xl md:text-8xl font-black tracking-tighter mb-4 -rotate-[1deg]">
+            <span>دليـل</span>
+            <span className="bg-[#FFD400] px-6 py-2 doodle-border-sm rotate-[2deg] inline-flex items-center gap-3">
+              <img src="/duck-logo.svg" className="w-16 h-16 md:w-24 md:h-24 object-contain -mt-2" alt="Duck Logo" />
+              <span>الشُعب</span>
+            </span>
+          </div>
         </div>
         <p className="text-xl md:text-2xl font-bold max-w-2xl mx-auto opacity-80 rotate-[0.5deg]">
-          كل مجموعات جامعتك في مكان واحد، مرتبة، موثقة، وجاهزة للمذاكرة! 🎓📝
+          كل مجموعات جامعتك في مكان واحد، مرتبة، موثقة، وجاهزة! 🎓📝
         </p>
       </section>
 
