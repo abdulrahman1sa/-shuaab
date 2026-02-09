@@ -57,7 +57,11 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group rotate-[1deg]">
                         <div className="flex items-center gap-2 bg-[#FFD400] px-3 py-2 doodle-border-sm">
-                            <span className="text-3xl">🦆</span>
+                            <img
+                                src="/duck-logo.png"
+                                alt="Duck Logo"
+                                className="w-10 h-10 object-contain"
+                            />
                             <span className="text-2xl font-black tracking-tighter">
                                 دليل الشُعب
                             </span>
