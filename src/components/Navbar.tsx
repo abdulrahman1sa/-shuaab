@@ -59,7 +59,7 @@ export default function Navbar() {
                     <Link href="/" className="flex items-center gap-3 group rotate-[1deg]">
                         <div className="flex items-center gap-2 bg-[#FFD400] px-3 py-2 doodle-border-sm">
                             <img
-                                src="/duck-logo.png"
+                                src="/duck-logo.svg"
                                 alt="Duck Logo"
                                 className="w-10 h-10 object-contain"
                             />
