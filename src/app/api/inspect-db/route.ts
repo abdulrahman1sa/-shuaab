@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { db, collections } from '@/lib/firebase-admin';
 
 export async function GET() {
     try {
-        const groups = await (prisma as any).group.findMany();
-        const submissions = await (prisma as any).groupSubmission.findMany();
+        const groupsSnapshot = await db.collection(collections.groups).get();
+        const submissionsSnapshot = await db.collection(collections.groupSubmissions).get();
+
+        const groups = groupsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const submissions = submissionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         return NextResponse.json({
             groups,
