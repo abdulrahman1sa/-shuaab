@@ -10,6 +10,7 @@ export default function Navbar() {
 
     const navLinks = [
         { href: '/', label: 'الرئيسية' },
+        { href: '/gpa', label: 'حاسبة المعدل' },
         { href: '/submit', label: 'إضافة شعبة' },
         { href: '/admin', label: 'الإدارة' },
     ];
