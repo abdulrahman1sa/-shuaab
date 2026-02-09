@@ -76,7 +76,7 @@ export default function Home() {
         <div className="relative inline-block mb-8">
           <DoodleBadge className="absolute -top-6 -right-10 text-lg py-2 px-6 rotate-[15deg]">جديد وحصري! ✨</DoodleBadge>
           <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-4 -rotate-[1deg]">
-            دليـل <span className="bg-[#FFD400] px-4 doodle-border-sm rotate-[2deg] inline-block">الشعب</span>
+            دليـل <span className="bg-[#FFD400] px-4 doodle-border-sm rotate-[2deg] inline-block">الشُعب</span>
           </h1>
         </div>
         <p className="text-xl md:text-2xl font-bold max-w-2xl mx-auto opacity-80 rotate-[0.5deg]">
